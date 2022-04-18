@@ -1,2 +1,2 @@
-# example-auto-follow-with-batch-dart
-About This repository is an example implementation of a Twitter auto-follow application using Batch.dart.
+A sample command-line application with an entrypoint in `bin/`, library code
+in `lib/`, and example unit test in `test/`.
