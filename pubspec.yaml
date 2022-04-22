@@ -1,13 +1,12 @@
 name: auto_follow
 description: A sample command-line application.
 version: 1.0.0
-# homepage: https://www.example.com
 
 environment:
-  sdk: '>=2.16.2 <3.0.0'
+  sdk: ">=2.16.2 <3.0.0"
 
 dependencies:
-  batch: ^1.0.0
+  batch: ^1.2.0
   dart_twitter_api: ^0.5.6+1
 
 dev_dependencies:
