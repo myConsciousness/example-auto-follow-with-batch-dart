@@ -1,5 +1,5 @@
 import 'package:batch/batch.dart';
-import 'package:dart_twitter_api/twitter_api.dart';
+import 'package:twitter_api_v2/twitter_api_v2.dart';
 
 void main(List<String> args) => BatchApplication(
       jobs: [AutoFollowUserJob()],
@@ -22,30 +22,44 @@ class AutoFollowUserJob implements ScheduledJobBuilder {
 class AutoFollowUserTask extends Task<AutoFollowUserTask> {
   @override
   Future<void> execute(ExecutionContext context) async {
-    // You need to get your own API keys from https://apps.twitter.com/
+    // You need to get your own tokens from https://apps.twitter.com/
     final twitter = TwitterApi(
-      client: TwitterClient(
-        consumerKey: 'Your consumer key',
-        consumerSecret: 'Your consumer secret',
-        token: 'Your token',
-        secret: 'Your secret',
+      bearerToken: 'YOUR_BEARER_TOKEN_HERE',
+
+      // Or you can use OAuth 1.0a tokens.
+      oauthTokens: OAuthTokens(
+        consumerKey: 'YOUR_API_KEY_HERE',
+        consumerSecret: 'YOUR_API_SECRET_HERE',
+        accessToken: 'YOUR_ACCESS_TOKEN_HERE',
+        accessTokenSecret: 'YOUR_ACCESS_TOKEN_SECRET_HERE',
       ),
     );
 
     try {
+      // You need your user id to create follow.
+      final me = await twitter.usersService.lookupMe();
       // Search for tweets
-      final tweets =
-          await twitter.tweetSearchService.searchTweets(q: '#programming');
+      final tweets = await twitter.tweetsService.searchRecent(
+        query: '#coding',
+        tweetFields: [
+          // Add author id field.
+          TweetField.authorId,
+        ],
+      );
 
       int count = 0;
-      for (final status in tweets.statuses!) {
+      for (final tweet in tweets.data) {
         if (count >= 3) {
           // Stop after 3 auto-follows
           return;
         }
 
         // Auto follow
-        await twitter.userService.friendshipsCreate(userId: status.idStr!);
+        await twitter.usersService.createFollow(
+          userId: me.data.id,
+          targetUserId: tweet.authorId!,
+        );
+
         count++;
       }
     } catch (e, s) {
